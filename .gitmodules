@@ -1,0 +1,20 @@
+[submodule "lib-src/imgui"]
+    path = lib-src/imgui
+    url = git@github.com:ocornut/imgui.git
+	branch = v1.89.5
+    shallow = true
+[submodule "lib-src/nativefiledialog"]
+    path = lib-src/nativefiledialog
+    url = git@github.com:mlabbe/nativefiledialog.git
+    branch = release_116
+    shallow = true
+[submodule "lib-src/stb"]
+    path = lib-src/stb
+    url = git@github.com:nothings/stb.git
+    commit = 5736b15f7ea0ffb08dd38af21067c314d6a3aae9
+    shallow = true
+[submodule "lib-src/doctest"]
+    path = lib-src/doctest
+    url = git@github.com:doctest/doctest.git
+	branch = v2.4.11
+    shallow = true

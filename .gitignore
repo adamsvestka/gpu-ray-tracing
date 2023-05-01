@@ -1,0 +1,15 @@
+# OS generated files
+.DS_Store
+
+# IDE generated files
+.vscode/*.log
+
+# build
+tmp
+bin
+
+# dependencies
+lib/*
+!lib/Makefile
+include/*
+!include/Makefile
