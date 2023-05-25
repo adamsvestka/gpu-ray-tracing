@@ -26,7 +26,7 @@ build-app: build-deps copy-headers copy-assets
 	@printf "\033[1;35mBuilding main application binary...\033[0m\n"
 	@$(MAKE) -C src
 
-build-tests: build-deps copy-headers
+build-tests: build-app
 	@printf "\033[1;35mBuilding tests...\033[0m\n"
 	@$(MAKE) -C tests
 
@@ -71,4 +71,4 @@ test-shaders: build
 	@printf "\n"
 	-@cd $(DIST_DIR) && ./test-shader
 
-.PHONY: build build-app build-tests clean run test test-main test-shaders
+.PHONY: build build-deps build-app build-tests copy-headers copy-assets clean clean-all download run test test-main test-shaders

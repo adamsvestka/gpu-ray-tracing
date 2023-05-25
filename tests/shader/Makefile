@@ -1,4 +1,4 @@
-SUBDIR := $(SUBDIR)/shader
+SUBDIR := tests/shader
 
 include ../../Guard.mk
 

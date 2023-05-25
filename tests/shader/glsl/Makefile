@@ -1,4 +1,4 @@
-SUBDIR := glsl
+SUBDIR := tests/shader/glsl
 
 include ../../../Guard.mk
 

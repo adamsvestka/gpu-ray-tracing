@@ -1,36 +1,25 @@
-// {
-//     "configurations": [
-//         {
-//             "name": "Mac",
-//             "includePath": [
-//                 "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1",
-//                 "/usr/local/include",
-//                 "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/14.0.3/include",
-//                 "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include",
-//                 "/usr/lib",
-//                 "${workspaceRoot}/include",
-//                 "${workspaceRoot}/src",
-//                 "${default}"
-//             ],
-//             "defines": [],
-//             "compilerPath": "/usr/bin/clang",
-//             "intelliSenseMode": "macos-clang-x64",
-//             "browse": {
-//                 "path": [
-//                     "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1",
-//                     "/usr/local/include",
-//                     "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/14.0.3/include",
-//                     "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include",
-//                     "/usr/lib",
-//                     "${workspaceRoot}/include",
-//                     "${workspaceRoot}/src",
-//                     "${default}"
-//                 ],
-//                 "limitSymbolsToIncludedHeaders": true,
-//                 "databaseFilename": ""
-//             },
-//             "configurationProvider": "ms-vscode.makefile-tools"
-//         }
-//     ],
-//     "version": 4
-// }
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/usr/local/include",
+                "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1",
+                "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include",
+                "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"
+            ],
+            "defines": [
+                "__GCC_HAVE_DWARF2_CFI_ASM=1"
+            ],
+            "macFrameworkPath": [
+                "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks"
+            ],
+            "compilerPath": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "macos-clang-x64"
+        }
+    ],
+    "version": 4
+}

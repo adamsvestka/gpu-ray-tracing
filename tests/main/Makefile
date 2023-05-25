@@ -1,4 +1,4 @@
-SUBDIR := $(SUBDIR)/main
+SUBDIR := tests/main
 
 include ../../Guard.mk
 

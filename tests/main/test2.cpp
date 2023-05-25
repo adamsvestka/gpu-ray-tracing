@@ -1,5 +1,5 @@
 #include <doctest.h>
 
-TEST_CASE("test") {
-    CHECK(1 == 2);
-}
+// TEST_CASE("test failure") {
+//     CHECK(1 == 2);
+// }

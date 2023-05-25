@@ -24,20 +24,22 @@ $(IMGUI_OBJS): %.o: %.cpp
 # ===== Native File Dialog =====
 NFD_DIR = $(LIB_SRC)/nativefiledialog/build
 
-NFD_TARGETS = $(wildcard $(NFD_DIR)/gmake_*)
+ifeq ($(shell uname -s), Darwin)
+	NFD_TARGET = $(NFD_DIR)/gmake_macosx
+else ifeq ($(shell uname -s), Linux)
+	NFD_TARGET = $(NFD_DIR)/gmake_linux
+else ifeq ($(shell uname -s), Windows_NT)
+	NFD_TARGET = $(NFD_DIR)/gmake_windows
+else
+	$(error Unsupported platform)
+endif
+
 NFD_OBJS = $(shell find $(NFD_DIR) -type d -name 'obj')
 NFD_OBJS += $(NFD_DIR)/lib $(NFD_DIR)/bin
 
-libnfd.a: $(NFD_TARGETS)
-	@BUILD_SUCCESS=false; \
-	for target in $(NFD_TARGETS); do \
-		make -C $$target && BUILD_SUCCESS=true || true; \
-	done; \
-	if [ "$$BUILD_SUCCESS" = "false" ]; then \
-		echo "All builds failed!"; \
-		exit 1; \
-	fi
-	find $(NFD_DIR)/lib -type f -name '*.a' -exec cp {} . \;
+libnfd.a: $(NFD_TARGET)
+	$(MAKE) -C $(NFD_TARGET)
+	find $(NFD_DIR)/lib -type f -name $@ -exec cp {} . \;
 
 clean:
 	@printf "\033[1;31mCleaning library artifacts...\033[0m\n"

@@ -1,11 +1,22 @@
-Sphere Sphere_new(vec3 center, float radius) {
+Sphere Sphere_load(samplerBuffer texture, int index) {
+    vec4 data = texelFetch(texture, index);
+    vec4 data2 = texelFetch(texture, index + 1);
     Sphere sphere;
-    sphere.center = center;
-    sphere.radius = radius;
-    sphere.radius2 = radius * radius;
+    sphere.center = data.xyz;
+    sphere.radius = data.w;
+    sphere.radius2 = data2.x;
+    // sphere.radius = 1;
+    // sphere.radius2 = 1;
     return sphere;
 }
 
+/**
+ * @brief Intersect a ray with a sphere
+ * @param self The sphere
+ * @param origin The origin of the ray
+ * @param direction The direction of the ray
+ * @return The point of intersection, or vec3(0) if there is no intersection
+ */
 vec3 Sphere_intersect(const Sphere self, vec3 origin, vec3 direction) {
     float t0, t1;
     
