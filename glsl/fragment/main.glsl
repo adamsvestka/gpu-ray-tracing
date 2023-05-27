@@ -8,43 +8,77 @@ uniform vec2 resolution;
 uniform vec3 light;
 uniform int lightStrength;
 
-// uniform sampler1D dataTexture;
-// uniform vec2 dataTextureSize;
 uniform samplerBuffer dataTexture;
+uniform int dataTextureSize;
 
 #include "functions.decl.glsl"
 #include "sphere.decl.glsl"
+#include "cuboid.decl.glsl"
 
 #include "functions.glsl"
 #include "sphere.glsl"
+#include "cuboid.glsl"
 
 
 void main() {
-    // vec2 pos = gl_FragCoord.xy;
-    // vec2 viewportDimensions = vec2(800, 600);
-    // vec2 pos = mix(vec2(0, 0), vec2(1, 1), gl_FragCoord.xy / resolution.xy);
-
     vec3 direction = getCameraRay(gl_FragCoord.xy);
 
-    // if (direction.y > 0) color = vec3(1, 0, 0);
-    // else color = vec3(0, 1, 0);
-    // color = vec3(direction.x > 0, direction.y > 0, direction.z > 0);
-    Sphere sphere = Sphere_load(dataTexture, 0);
-    Sphere sphere2 = Sphere_load(dataTexture, 2);
+    // Sphere sphere = Sphere_load(dataTexture, 0);
+    // Sphere sphere2 = Sphere_load(dataTexture, 2);
 
-    vec3 intersection = Sphere_intersect(sphere, vec3(0), direction);
-    if (intersection != vec3(0)) {
-        vec3 normal = normalize(intersection - sphere.center);
-        color = calculateLighting(intersection, normal, direction, lightStrength, 100);
-    } else if ((intersection = Sphere_intersect(sphere2, vec3(0), direction)) != vec3(0)) {
-        vec3 normal = normalize(intersection - sphere2.center);
+    // vec3 intersection = Sphere_intersect(sphere, vec3(0), direction);
+    // if (intersection != vec3(0)) {
+    //     vec3 normal = Sphere_normal(sphere, intersection);
+    //     color = calculateLighting(intersection, normal, direction, lightStrength, 100);
+    // } else if ((intersection = Sphere_intersect(sphere2, vec3(0), direction)) != vec3(0)) {
+    //     vec3 normal = Sphere_normal(sphere2, intersection);
+    //     color = calculateLighting(intersection, normal, direction, lightStrength, 100);
+    // } else color = vec3(0.02);
+
+
+    // Cuboid cuboid = Cuboid_load(dataTexture, 0);
+    // Cuboid cuboid2 = Cuboid_load(dataTexture, 2);
+
+    // vec3 intersection = Cuboid_intersect(cuboid, vec3(0), direction);
+    // if (intersection != vec3(0)) {
+    //     vec3 normal = Cuboid_normal(cuboid, intersection);
+    //     color = calculateLighting(intersection, normal, direction, lightStrength, 100);
+    // } else if ((intersection = Cuboid_intersect(cuboid2, vec3(0), direction)) != vec3(0)) {
+    //     vec3 normal = Cuboid_normal(cuboid2, intersection);
+    //     color = calculateLighting(intersection, normal, direction, lightStrength, 100);
+    // } else color = vec3(0.02);
+
+    int i = 0;
+    vec3 intersection = vec3(-1);
+    vec3 normal = vec3(0);
+    while (i < dataTextureSize) {
+        vec4 data = texelFetch(dataTexture, i);
+        switch (int(data.x)) {
+            case 1:
+                Sphere sphere = Sphere_load(dataTexture, i);
+                vec3 newIntersection = Sphere_intersect(sphere, vec3(0), direction);
+                if (newIntersection != vec3(-1)) {
+                    if (length(newIntersection) < length(intersection) || intersection == vec3(-1)) {
+                        intersection = newIntersection;
+                        normal = Sphere_normal(sphere, newIntersection);
+                    }
+                }
+                break;
+            case 2:
+                Cuboid cuboid = Cuboid_load(dataTexture, i);
+                newIntersection = Cuboid_intersect(cuboid, vec3(0), direction);
+                if (newIntersection != vec3(-1)) {
+                    if (length(newIntersection) < length(intersection) || intersection == vec3(-1)) {
+                        intersection = newIntersection;
+                        normal = Cuboid_normal(cuboid, newIntersection);
+                    }
+                }
+                break;
+        }
+        i += int(data.y);
+    }
+
+    if (intersection != vec3(-1)) {
         color = calculateLighting(intersection, normal, direction, lightStrength, 100);
     } else color = vec3(0.02);
-    // color = vec3(1) - intersectSphere(vec3(0), direction) / 10;
-
-    // if (gl_FragCoord.x / resolution.x > 0.5) color = vec3(1, 0, 0);
-    // else color = vec3(0, 1, 0);
-
-    // color = vec3(int(gl_FragCoord.x / 8.0) % 2, int(gl_FragCoord.y / 8.0) % 2, 0.0);
-    // color = vec3(pos.xy, 0);
 }
