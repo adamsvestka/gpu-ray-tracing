@@ -12,6 +12,7 @@ private:
     friend class PointLightRef;
     friend class DirectionalLightRef;
     friend class GlobalLightRef;
+    friend class ItemRef<Light, PointLight>;
 
 public:
     LightBuffer(GLuint bufferTextureID, GLuint bufferSizeID, GLuint textureID);
@@ -23,63 +24,39 @@ public:
     void print() const;
 };
 
-class PointLightRef {
-private:
-    LightBuffer &buffer;
-    size_t index;
-
-    inline PointLight &getPointLight() { return buffer[index].pointLight; }
-
+class PointLightRef : public ItemRef<Light, PointLight> {
 public:
-    PointLightRef(LightBuffer &buffer, size_t index) : buffer(buffer), index(index) {}
+    PointLightRef(LightBuffer &buffer, size_t index) : ItemRef(buffer, index, &Light::pointLight) {}
 
-    glm::vec3 getPosition() { return getPointLight().position; }
-    float getIntensity() { return getPointLight().intensity; }
-    glm::vec3 getColor() { return getPointLight().color; }
+    glm::vec3 getPosition() { return get().position; }
+    float getIntensity() { return get().intensity; }
+    glm::vec3 getColor() { return get().color; }
 
-    void setPosition(const glm::vec3 &position) { getPointLight().position = position; buffer.update(index); }
-    void setIntensity(int intensity) { getPointLight().intensity = intensity; buffer.update(index); }
-    void setColor(const glm::vec3 &color) { getPointLight().color = color; buffer.update(index); }
-
-    void remove() { buffer.remove(index); }
+    void setPosition(const glm::vec3 &position) { get().position = position; update(); }
+    void setIntensity(int intensity) { get().intensity = intensity; update(); }
+    void setColor(const glm::vec3 &color) { get().color = color; update(); }
 };
 
-class DirectionalLightRef {
-private:
-    LightBuffer &buffer;
-    size_t index;
-
-    inline DirectionalLight &getDirectionalLight() { return buffer[index].directionalLight; }
-
+class DirectionalLightRef : public ItemRef<Light, DirectionalLight> {
 public:
-    DirectionalLightRef(LightBuffer &buffer, size_t index) : buffer(buffer), index(index) {}
+    DirectionalLightRef(LightBuffer &buffer, size_t index) : ItemRef(buffer, index, &Light::directionalLight) {}
 
-    glm::vec3 getDirection() { return getDirectionalLight().direction; }
-    float getIntensity() { return getDirectionalLight().intensity; }
-    glm::vec3 getColor() { return getDirectionalLight().color; }
+    glm::vec3 getDirection() { return get().direction; }
+    float getIntensity() { return get().intensity; }
+    glm::vec3 getColor() { return get().color; }
 
-    void setDirection(const glm::vec3 &direction) { getDirectionalLight().direction = direction; buffer.update(index); }
-    void setIntensity(int intensity) { getDirectionalLight().intensity = intensity; buffer.update(index); }
-    void setColor(const glm::vec3 &color) { getDirectionalLight().color = color; buffer.update(index); }
-
-    void remove() { buffer.remove(index); }
+    void setDirection(const glm::vec3 &direction) { get().direction = direction; buffer.update(index); }
+    void setIntensity(int intensity) { get().intensity = intensity; buffer.update(index); }
+    void setColor(const glm::vec3 &color) { get().color = color; buffer.update(index); }
 };
 
-class GlobalLightRef {
-private:
-    LightBuffer &buffer;
-    size_t index;
-
-    inline GlobalLight &getGlobalLight() { return buffer[index].globalLight; }
-
+class GlobalLightRef : public ItemRef<Light, GlobalLight> {
 public:
-    GlobalLightRef(LightBuffer &buffer, size_t index) : buffer(buffer), index(index) {}
+    GlobalLightRef(LightBuffer &buffer, size_t index) : ItemRef(buffer, index, &Light::globalLight) {}
 
-    float getIntensity() { return getGlobalLight().intensity; }
-    glm::vec3 getColor() { return getGlobalLight().color; }
+    float getIntensity() { return get().intensity; }
+    glm::vec3 getColor() { return get().color; }
 
-    void setIntensity(float intensity) { getGlobalLight().intensity = intensity; buffer.update(index); }
-    void setColor(const glm::vec3 &color) { getGlobalLight().color = color; buffer.update(index); }
-
-    void remove() { buffer.remove(index); }
+    void setIntensity(float intensity) { get().intensity = intensity; buffer.update(index); }
+    void setColor(const glm::vec3 &color) { get().color = color; buffer.update(index); }
 };

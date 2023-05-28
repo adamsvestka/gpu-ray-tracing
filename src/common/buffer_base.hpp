@@ -5,6 +5,9 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
+template <typename T, typename P>
+class ItemRef;
+
 template <typename T>
 class BufferBase {
 protected:
@@ -15,14 +18,14 @@ protected:
     const std::vector<glm::vec4> &getBuffer() const;
     GLuint getBufferSize() const;
 
+public:
+    BufferBase(GLuint bufferTextureID, GLuint bufferSizeID, GLuint textureID);
+
     void update() const;
     void update(size_t index) const;
 
     const T &operator[](size_t index) const;
     T &operator[](size_t index);
-
-public:
-    BufferBase(GLuint bufferTextureID, GLuint bufferSizeID, GLuint textureID);
 
     const glm::vec4 *data() const;
     size_t size() const;
@@ -34,6 +37,24 @@ public:
 
     void printBuffer() const;
     void printGPUBuffer(GLuint programID) const;
+};
+
+template <typename T, typename P>
+class ItemRef {
+protected:
+    BufferBase<T> &buffer;
+    size_t index;
+
+    P T:: *p_member;
+
+    inline P &get() { return buffer[index].*p_member; }
+
+    inline void update() { buffer.update(index); }
+
+public:
+    ItemRef(BufferBase<T> &buffer, size_t index, P T:: *p_member) : buffer(buffer), index(index), p_member(p_member) {}
+
+    void remove() { buffer.remove(index); }
 };
 
 

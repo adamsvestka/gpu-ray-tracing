@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
     glUniform2f(resolutionID, screenWidth, screenHeight);
 
 
-    ShapeBuffer shapes(shapesBufferID, shapesBufferSizeID);
+    ShapeBuffer shapes(shapesBufferID, shapesBufferSizeID, 0);
     shapes.addSphere(glm::vec3(8.0f, 1.0f, 1.0f), 3.0f, Material{ glm::vec3(0.0f, 0.0f, 1.0f) });
     auto cuboid = shapes.addCuboid(glm::vec3(10.0f, 10.0f, 0.0f), glm::vec3(1.0f), Material{ glm::vec3(1.0f, 0.0f, 0.0f) });
 
