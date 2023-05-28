@@ -23,31 +23,6 @@ uniform int dataTextureSize;
 void main() {
     vec3 direction = getCameraRay(gl_FragCoord.xy);
 
-    // Sphere sphere = Sphere_load(dataTexture, 0);
-    // Sphere sphere2 = Sphere_load(dataTexture, 2);
-
-    // vec3 intersection = Sphere_intersect(sphere, vec3(0), direction);
-    // if (intersection != vec3(0)) {
-    //     vec3 normal = Sphere_normal(sphere, intersection);
-    //     color = calculateLighting(intersection, normal, direction, lightStrength, 100);
-    // } else if ((intersection = Sphere_intersect(sphere2, vec3(0), direction)) != vec3(0)) {
-    //     vec3 normal = Sphere_normal(sphere2, intersection);
-    //     color = calculateLighting(intersection, normal, direction, lightStrength, 100);
-    // } else color = vec3(0.02);
-
-
-    // Cuboid cuboid = Cuboid_load(dataTexture, 0);
-    // Cuboid cuboid2 = Cuboid_load(dataTexture, 2);
-
-    // vec3 intersection = Cuboid_intersect(cuboid, vec3(0), direction);
-    // if (intersection != vec3(0)) {
-    //     vec3 normal = Cuboid_normal(cuboid, intersection);
-    //     color = calculateLighting(intersection, normal, direction, lightStrength, 100);
-    // } else if ((intersection = Cuboid_intersect(cuboid2, vec3(0), direction)) != vec3(0)) {
-    //     vec3 normal = Cuboid_normal(cuboid2, intersection);
-    //     color = calculateLighting(intersection, normal, direction, lightStrength, 100);
-    // } else color = vec3(0.02);
-
     int i = 0;
     vec3 intersection = vec3(-1);
     vec3 normal = vec3(0);

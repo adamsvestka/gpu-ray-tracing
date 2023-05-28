@@ -10,6 +10,7 @@ using namespace glm;
 #include "common/code_chunks.hpp"
 #include "common/load_shaders.hpp"
 #include "common/primitives.hpp"
+#include "common/shape_buffer.hpp"
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -44,37 +45,25 @@ int main(int argc, char **argv) {
         shader::compile_shader(GL_VERTEX_SHADER, shader::load_shader_code("glsl/vertex/main.glsl")),
         shader::compile_shader(GL_FRAGMENT_SHADER, shader::load_shader_code("glsl/fragment/main.glsl"))
     );
+    glUseProgram(ProgramID);
+
     GLuint resolutionID = glGetUniformLocation(ProgramID, "resolution");
     GLuint lightID = glGetUniformLocation(ProgramID, "light");
     GLuint lightStrengthID = glGetUniformLocation(ProgramID, "lightStrength");
     GLuint dataTextureID = glGetUniformLocation(ProgramID, "dataTexture");
     GLuint dataTextureSizeID = glGetUniformLocation(ProgramID, "dataTextureSize");
 
-    union Shape {
-        Sphere sphere;
-        Cuboid cuboid;
-    };
+    glUniform2f(resolutionID, screenWidth, screenHeight);
 
-    std::vector<Shape> shapes;
-    shapes.push_back({ Sphere(glm::vec3(8.0f, 1.0f, 1.0f), 3.0f) });
-    // shapes.push_back({ Sphere(glm::vec3(10.0f, 10.0f, 0.0f), 1.0f) });
-    // shapes.push_back({ cuboid: Cuboid(glm::vec3(8.0f, 1.0f, 1.0f), glm::vec3(3.0f, 3.0f, 3.0f)) });
-    shapes.push_back({ cuboid: Cuboid(glm::vec3(10.0f, 10.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f)) });
 
-    std::cout << shapes.size() << std::endl;
-    std::cout << sizeof(shapes[0]) << std::endl;
+    ShapeBuffer shapes(dataTextureID, dataTextureSizeID);
+    auto sphere = shapes.addSphere(glm::vec3(8.0f, 1.0f, 1.0f), 3.0f);
+    shapes.addCuboid(glm::vec3(10.0f, 10.0f, 0.0f), glm::vec3(1.0f));
 
-    GLuint VBO;
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, shapes.size() * sizeof(shapes[0]), shapes.data(), GL_STATIC_DRAW);
+    shapes.print();
+    shapes.printBuffer();
+    shapes.printGPUBuffer(ProgramID);
 
-    GLuint TBO;
-    glGenTextures(1, &TBO);
-    glBindTexture(GL_TEXTURE_BUFFER, TBO);
-    glBufferData(GL_TEXTURE_BUFFER, shapes.size() * sizeof(shapes[0]), NULL, GL_STATIC_DRAW);
-    glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, VBO);
-    glUniform1i(dataTextureID, 0);
 
     glm::vec3 light(0.0f, 4.0f, -3.0f);
     int lightStrength = 100;
@@ -82,24 +71,12 @@ int main(int argc, char **argv) {
     float theta = 0.02f;
     glm::mat2 rotate(cos(theta), -sin(theta), sin(theta), cos(theta));
 
-    glUseProgram(ProgramID);
-    glUniform2f(resolutionID, screenWidth, screenHeight);
-    glUniform1i(dataTextureSizeID, shapes.size() * sizeof(shapes[0]) / sizeof(glm::vec4));
 
     double lastTime = glfwGetTime();
     int nbFrames = 0;
     double fps = 0.0f;
 
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-
-    GLint size;
-    glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-    std::vector<GLfloat> data(size / sizeof(GLfloat));
-    glGetBufferSubData(GL_ARRAY_BUFFER, 0, size, &data[0]);
-    for (int i = 0; i < data.size(); i++) {
-        std::cout << data[i] << " ";
-    }
-    std::cout << std::endl;
 
     while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(window) != true) {
 
@@ -111,8 +88,7 @@ int main(int argc, char **argv) {
             lastTime += 1.0;
         }
 
-        // shapes[0].center.y += delta.x;
-        // shapes[0].center.z += delta.y;
+        sphere.addCenter(glm::vec3(0.0f, delta.x, delta.y));
 
         delta = rotate * delta;
 
