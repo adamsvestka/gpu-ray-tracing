@@ -36,9 +36,6 @@ GLFWwindow *chunks::create_window(int &width, int &height, const char *title) {
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
     glViewport(0, 0, width, height);
 
-    // std::cout << (glGetString(GL_RENDERER)) << std::endl;
-    // std::cout << (glGetString(GL_VERSION)) << std::endl;
-
     return window;
 }
 

@@ -1,85 +1,119 @@
-#include "shape_buffer.hpp"
+#pragma once
+
+#include <vector>
+
+#include <GL/glew.h>
+#include <glm/glm.hpp>
+
+template <typename T>
+class BufferBase {
+protected:
+    std::vector<T> buffer;
+    GLuint bufferTextureID, bufferSizeID, textureID;
+    GLuint VBO, TBO;
+
+    const std::vector<glm::vec4> &getBuffer() const;
+    GLuint getBufferSize() const;
+
+    void update() const;
+    void update(size_t index) const;
+
+    const T &operator[](size_t index) const;
+    T &operator[](size_t index);
+
+public:
+    BufferBase(GLuint bufferTextureID, GLuint bufferSizeID, GLuint textureID);
+
+    const glm::vec4 *data() const;
+    size_t size() const;
+
+    void clear();
+
+    void remove(size_t index);
+    void remove(const T &shape);
+
+    void printBuffer() const;
+    void printGPUBuffer(GLuint programID) const;
+};
+
 
 #include <iostream>
 #include <iomanip>
 
-ShapeBuffer::ShapeBuffer(GLuint bufferTextureID, GLuint bufferSizeID) : bufferTextureID(bufferTextureID), bufferSizeID(bufferSizeID) {
+template <typename T>
+BufferBase<T>::BufferBase(GLuint bufferTextureID, GLuint bufferSizeID, GLuint textureID) : bufferTextureID(bufferTextureID), bufferSizeID(bufferSizeID), textureID(textureID) {
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, getBufferSize(), getBuffer().data(), GL_STATIC_DRAW);
 
     glGenTextures(1, &TBO);
-    glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE0 + textureID);
     glBindTexture(GL_TEXTURE_BUFFER, TBO);
     glBufferData(GL_TEXTURE_BUFFER, getBufferSize(), NULL, GL_STATIC_DRAW);
     glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, VBO);
 
-    glUniform1i(bufferTextureID, 0);
-    glUniform1i(bufferSizeID, buffer.size() * sizeof(Shape) / sizeof(glm::vec4));
+    glUniform1i(bufferTextureID, textureID);
+    glUniform1i(bufferSizeID, buffer.size() * sizeof(T) / sizeof(glm::vec4));
 }
 
-const std::vector<glm::vec4> &ShapeBuffer::getBuffer() const {
+template <typename T>
+const std::vector<glm::vec4> &BufferBase<T>::getBuffer() const {
     return reinterpret_cast<const std::vector<glm::vec4> &>(buffer);
 }
 
-GLuint ShapeBuffer::getBufferSize() const {
+template <typename T>
+GLuint BufferBase<T>::getBufferSize() const {
     return getBuffer().size() * sizeof(glm::vec4);
 }
 
-void ShapeBuffer::update() const {
+template <typename T>
+void BufferBase<T>::update() const {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, getBufferSize(), getBuffer().data(), GL_STATIC_DRAW);
 
-    glUniform1i(bufferSizeID, buffer.size() * sizeof(Shape) / sizeof(glm::vec4));
+    glUniform1i(bufferSizeID, buffer.size() * sizeof(T) / sizeof(glm::vec4));
 }
 
-void ShapeBuffer::update(size_t index) const {
+template <typename T>
+void BufferBase<T>::update(size_t index) const {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, index * sizeof(Shape), sizeof(Shape), &buffer[index]);
-
-    // glBindTexture(GL_TEXTURE_BUFFER, TBO);
-    // glBufferSubData(GL_TEXTURE_BUFFER, index * sizeof(Shape), sizeof(Shape), &buffer[index]);
+    glBufferSubData(GL_ARRAY_BUFFER, index * sizeof(T), sizeof(T), &buffer[index]);
 }
 
-const Shape &ShapeBuffer::operator[](size_t index) const {
+template <typename T>
+const T &BufferBase<T>::operator[](size_t index) const {
     return buffer[index];
 }
 
-Shape &ShapeBuffer::operator[](size_t index) {
+template <typename T>
+T &BufferBase<T>::operator[](size_t index) {
     return buffer[index];
 }
 
-SphereRef ShapeBuffer::addSphere(const glm::vec3 &position, float radius, const Material &material) {
-    buffer.push_back({ sphere: Sphere(position, radius, material) });
-    update();
-    return SphereRef(*this, buffer.size() - 1);
-}
-
-CuboidRef ShapeBuffer::addCuboid(const glm::vec3 &position, glm::vec3 size, const Material &material) {
-    buffer.push_back({ cuboid: Cuboid(position, size, material) });
-    update();
-    return CuboidRef(*this, buffer.size() - 1);
-}
-
-const glm::vec4 *ShapeBuffer::data() const {
+template <typename T>
+const glm::vec4 *BufferBase<T>::data() const {
     return reinterpret_cast<const glm::vec4 *>(buffer.data());
 }
 
-size_t ShapeBuffer::size() const {
+template <typename T>
+size_t BufferBase<T>::size() const {
     return buffer.size();
 }
 
-void ShapeBuffer::clear() {
+template <typename T>
+void BufferBase<T>::clear() {
     buffer.clear();
     update();
 }
 
-void ShapeBuffer::remove(size_t index) {
+template <typename T>
+void BufferBase<T>::remove(size_t index) {
     buffer.erase(buffer.begin() + index);
     update();
 }
 
-void ShapeBuffer::remove(const Shape &shape) {
+template <typename T>
+void BufferBase<T>::remove(const T &shape) {
     for (size_t i = 0; i < buffer.size(); i++) {
         if (&buffer[i] == &shape) {
             remove(i);
@@ -88,21 +122,8 @@ void ShapeBuffer::remove(const Shape &shape) {
     }
 }
 
-void ShapeBuffer::print() const {
-    std::cout << "Shape count: " << buffer.size() << std::endl;
-    for (size_t i = 0; i < buffer.size(); i++) {
-        switch ((int)buffer[i].data->x) {
-            case 1:
-                std::cout << "    " << buffer[i].sphere.toString() << std::endl;
-                break;
-            case 2:
-                std::cout << "    " << buffer[i].cuboid.toString() << std::endl;
-                break;
-        }
-    }
-}
-
-void ShapeBuffer::printBuffer() const {
+template <typename T>
+void BufferBase<T>::printBuffer() const {
     std::cout << "Buffer size: " << getBufferSize() << "B" << std::endl;
     auto &buf = getBuffer();
     for (size_t i = 0; i < buf.size(); i += 2) {
@@ -120,10 +141,11 @@ void ShapeBuffer::printBuffer() const {
     }
 }
 
-void ShapeBuffer::printGPUBuffer(GLuint programID) const {
-    GLint dataTextureSize;
-    glGetUniformiv(programID, bufferSizeID, &dataTextureSize);
-    std::cout << "GPU Buffer size: " << dataTextureSize << " * sizeof(vec4)" << std::endl;
+template <typename T>
+void BufferBase<T>::printGPUBuffer(GLuint programID) const {
+    GLint bufferSize;
+    glGetUniformiv(programID, bufferSizeID, &bufferSize);
+    std::cout << "GPU Buffer size: " << bufferSize << " * sizeof(vec4)" << std::endl;
 
     GLint size;
     glBindBuffer(GL_ARRAY_BUFFER, VBO);

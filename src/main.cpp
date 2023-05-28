@@ -11,6 +11,8 @@ using namespace glm;
 #include "common/load_shaders.hpp"
 #include "common/primitives.hpp"
 #include "common/shape_buffer.hpp"
+#include "common/light_buffer.hpp"
+#include "common/camera.hpp"
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -27,6 +29,7 @@ int main(int argc, char **argv) {
 
     std::cout << (glGetString(GL_RENDERER)) << std::endl;
     std::cout << (glGetString(GL_VERSION)) << std::endl;
+    std::cout << "Max objects: " << GL_MAX_TEXTURE_BUFFER_SIZE / sizeof(Shape) << " (" << GL_MAX_TEXTURE_BUFFER_SIZE << " bytes)" << std::endl;
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -48,21 +51,32 @@ int main(int argc, char **argv) {
     glUseProgram(ProgramID);
 
     GLuint resolutionID = glGetUniformLocation(ProgramID, "resolution");
-    GLuint lightID = glGetUniformLocation(ProgramID, "light");
-    GLuint lightStrengthID = glGetUniformLocation(ProgramID, "lightStrength");
-    GLuint dataTextureID = glGetUniformLocation(ProgramID, "dataTexture");
-    GLuint dataTextureSizeID = glGetUniformLocation(ProgramID, "dataTextureSize");
+    GLuint cameraTranslationMatrixID = glGetUniformLocation(ProgramID, "cameraTranslationMatrix");
+    GLuint cameraRotationMatrixID = glGetUniformLocation(ProgramID, "cameraRotationMatrix");
+    GLuint shapesBufferID = glGetUniformLocation(ProgramID, "shapesBuffer");
+    GLuint shapesBufferSizeID = glGetUniformLocation(ProgramID, "shapesBufferSize");
+    GLuint lightsBufferID = glGetUniformLocation(ProgramID, "lightsBuffer");
+    GLuint lightsBufferSizeID = glGetUniformLocation(ProgramID, "lightsBufferSize");
+
 
     glUniform2f(resolutionID, screenWidth, screenHeight);
 
 
-    ShapeBuffer shapes(dataTextureID, dataTextureSizeID);
-    auto sphere = shapes.addSphere(glm::vec3(8.0f, 1.0f, 1.0f), 3.0f);
-    shapes.addCuboid(glm::vec3(10.0f, 10.0f, 0.0f), glm::vec3(1.0f));
+    ShapeBuffer shapes(shapesBufferID, shapesBufferSizeID);
+    shapes.addSphere(glm::vec3(8.0f, 1.0f, 1.0f), 3.0f, Material{ glm::vec3(0.0f, 0.0f, 1.0f) });
+    auto cuboid = shapes.addCuboid(glm::vec3(10.0f, 10.0f, 0.0f), glm::vec3(1.0f), Material{ glm::vec3(1.0f, 0.0f, 0.0f) });
+
+    LightBuffer lights(lightsBufferID, lightsBufferSizeID, 1);
+    lights.addGlobalLight(0.1f, glm::vec3(1.0f));
+    auto point_light = lights.addPointLight(glm::vec3(0.0f, 4.0f, -3.0f), 100, glm::vec3(1.0f));
 
     shapes.print();
     shapes.printBuffer();
     shapes.printGPUBuffer(ProgramID);
+
+    lights.print();
+    lights.printBuffer();
+    lights.printGPUBuffer(ProgramID);
 
 
     glm::vec3 light(0.0f, 4.0f, -3.0f);
@@ -70,11 +84,13 @@ int main(int argc, char **argv) {
     glm::vec2 delta(0.03f, 0.0f);
     float theta = 0.02f;
     glm::mat2 rotate(cos(theta), -sin(theta), sin(theta), cos(theta));
+    Camera camera;
 
 
     double lastTime = glfwGetTime();
     int nbFrames = 0;
     double fps = 0.0f;
+    double xpos, ypos, lastX, lastY;
 
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 
@@ -88,15 +104,32 @@ int main(int argc, char **argv) {
             lastTime += 1.0;
         }
 
-        sphere.addCenter(glm::vec3(0.0f, delta.x, delta.y));
-
+        cuboid.move(glm::vec3(0.0f, delta.x, delta.y));
         delta = rotate * delta;
 
-        glUniform3fv(lightID, 1, &light[0]);
-        glUniform1i(lightStrengthID, lightStrength);
+        point_light.setPosition(light);
+        point_light.setIntensity(lightStrength);
 
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(shapes[0]), &shapes[0]);
-        glTexSubImage1D(GL_TEXTURE_BUFFER, 0, 0, sizeof(shapes[0]), GL_RGBA, GL_FLOAT, &shapes[0]);
+        float angle = glm::radians(camera.rotation.z);
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) camera.position.z -= 0.1f;
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) camera.position.z += 0.1f;
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) camera.position -= glm::vec3(cos(angle), sin(angle), 0.0f) * 0.1f;
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) camera.position += glm::vec3(cos(angle), sin(angle), 0.0f) * 0.1f;
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) camera.position -= glm::vec3(sin(angle), -cos(angle), 0.0f) * 0.1f;
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) camera.position += glm::vec3(sin(angle), -cos(angle), 0.0f) * 0.1f;
+
+        glfwGetCursorPos(window, &xpos, &ypos);
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+            float delta_x = (float)(lastX - xpos) / 5.0f;
+            float delta_y = (float)(lastY - ypos) / 5.0f;
+            camera.rotation.z -= delta_x;
+            camera.rotation.y = clamp(camera.rotation.y + delta_y, -90.0f, 90.0f);
+        }
+        lastX = xpos;
+        lastY = ypos;
+
+        glUniformMatrix4fv(cameraTranslationMatrixID, 1, GL_FALSE, &camera.getTranslationMatrix()[0][0]);
+        glUniformMatrix4fv(cameraRotationMatrixID, 1, GL_FALSE, &camera.getRotationMatrix()[0][0]);
 
         chunks::render_scene();
 
@@ -107,6 +140,8 @@ int main(int argc, char **argv) {
         {
             ImGui::Begin("Another Window");
             ImGui::Text("FPS: %.1f", fps);
+            ImGui::Text("Camera Position: (%.1f, %.1f, %.1f)", camera.position.x, camera.position.y, camera.position.z);
+            ImGui::Text("Camera Rotation: (%.1f, %.1f)", camera.rotation.z, camera.rotation.y);
             ImGui::SliderFloat("light.x", &light.x, -10.0f, 10.0f);
             ImGui::SliderFloat("light.y", &light.y, -10.0f, 10.0f);
             ImGui::SliderFloat("light.z", &light.z, -10.0f, 10.0f);

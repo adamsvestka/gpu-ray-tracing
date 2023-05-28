@@ -83,9 +83,9 @@ GLuint shader::link_program(GLuint vertex_shader_id, GLuint fragment_shader_id, 
 
     auto status = get_status<GL_LINK_STATUS>(program_id);
     if (!throw_errors) {
-        if (!status.has_value()) std::cout << "  ✅ Shader compiled successfully" << std::endl;
+        if (!status.has_value()) std::cout << "  ✅ Program linked successfully" << std::endl;
         else {
-            std::cout << "  ❌ Shader compilation failed" << std::endl;
+            std::cout << "  ❌ Program linking failed" << std::endl;
             std::cout << status.value() << std::endl;
             return 0;
         }

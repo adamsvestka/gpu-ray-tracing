@@ -5,14 +5,14 @@ export SUBDIR
 include Guard.mk
 
 export CXX      = clang++
-export CXXFLAGS = -std=c++20 -Wall -Wno-deprecated-volatile -I$(ROOT_DIR)/include
+export CXXFLAGS = -std=c++20 -Wall -Wno-deprecated-volatile -Wno-unused-private-field -Wno-gnu-designator -I$(ROOT_DIR)/include
 export LDFLAGS  =
 
 export DIST_DIR = $(ROOT_DIR)/bin
 export TEMP_DIR = $(ROOT_DIR)/tmp
 
 # CXXFLAGS += -g -O0
-# CXXFLAGS += -O3
+CXXFLAGS += -O3
 
 .DEFAULT_GOAL = help
 

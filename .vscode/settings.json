@@ -83,7 +83,8 @@
         "filesystem": "cpp",
         "*.decl": "c",
         "unordered_set": "cpp",
-        "__verbose_abort": "cpp"
+        "__verbose_abort": "cpp",
+        "*.ipp": "cpp"
     },
     "makefile.launchConfigurations": [
         {
