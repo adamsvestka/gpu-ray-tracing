@@ -12,8 +12,6 @@ Cuboid Cuboid_load(samplerBuffer texture, int index) {
     self.material.color = data2.xyz;
     self.material.specular = data2.w;
     self.material.reflectivity = data3.x;
-    self.material.ior = data3.y;
-    self.material.transparent = data3.z;
     return self;
 }
 

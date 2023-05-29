@@ -13,8 +13,6 @@ Sphere Sphere_load(samplerBuffer texture, int index) {
     self.material.color = vec3(data1.w, data2.x, data2.y);
     self.material.specular = data2.z;
     self.material.reflectivity = data2.w;
-    self.material.ior = data3.x;
-    self.material.transparent = data3.y;
     return self;
 }
 

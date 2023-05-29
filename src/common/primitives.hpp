@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-const unsigned __shapes_stride = 5;
+const unsigned __shapes_stride = 4;
 
 glm::mat3 rotationMatrix(const glm::vec3 &rotation);
 
@@ -15,8 +15,6 @@ struct Material {
     glm::vec3 color;
     float specular;
     float reflectivity;
-    float ior;
-    float transparent;
 
     std::string toString() const {
         std::stringstream ss;
@@ -56,7 +54,7 @@ public:
     void move(const glm::vec3 &position) { center += position; }
 
 private:
-    float __padding[6];
+    float __padding[4];
 };
 
 struct Cuboid {
@@ -105,7 +103,7 @@ public:
     }
 
 private:
-    float __padding[3];
+    float __padding[1];
 };
 
 #pragma pack(pop)

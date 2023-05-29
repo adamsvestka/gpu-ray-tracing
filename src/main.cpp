@@ -51,6 +51,7 @@ int main(int argc, char **argv) {
     glUseProgram(ProgramID);
 
     GLuint resolutionID = glGetUniformLocation(ProgramID, "resolution");
+    GLuint renderModeID = glGetUniformLocation(ProgramID, "renderMode");
     GLuint cameraTranslationMatrixID = glGetUniformLocation(ProgramID, "cameraTranslationMatrix");
     GLuint cameraRotationMatrixID = glGetUniformLocation(ProgramID, "cameraRotationMatrix");
     GLuint shapesBufferID = glGetUniformLocation(ProgramID, "shapesBuffer");
@@ -63,8 +64,8 @@ int main(int argc, char **argv) {
 
 
     ShapeBuffer shapes(shapesBufferID, shapesBufferSizeID, 0);
-    shapes.addSphere(glm::vec3(8.0f, 1.0f, 1.0f), 3.0f, Material{ glm::vec3(0.0f, 0.0f, 1.0f), 100.0f, 0.5f, 1.0f, 0.0f });
-    auto cuboid = shapes.addCuboid(glm::vec3(5.0f, 5.0f, 0.0f), glm::vec3(2.5f), Material{ glm::vec3(1.0f, 0.0f, 0.0f), 500.0f, 0.0f, 1.0f, 0.0f });
+    shapes.addSphere(glm::vec3(8.0f, 1.0f, 1.0f), 3.0f, Material{ glm::vec3(0.0f, 0.0f, 1.0f), 100.0f, 0.5f });
+    auto cuboid = shapes.addCuboid(glm::vec3(5.0f, 5.0f, 0.0f), glm::vec3(2.5f), Material{ glm::vec3(1.0f, 0.0f, 0.0f), 500.0f, 0.0f });
 
     LightBuffer lights(lightsBufferID, lightsBufferSizeID, 1);
     lights.addGlobalLight(0.1f, glm::vec3(1.0f));
@@ -91,6 +92,8 @@ int main(int argc, char **argv) {
     int nbFrames = 0;
     double fps = 0.0f;
     double xpos, ypos, lastX, lastY;
+    const std::vector<std::string> renderModes = { "Ray Tracing", "Normals", "Depth", "Color" };
+    int renderMode = 0;
 
     glfwSwapInterval(1);
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
@@ -143,6 +146,17 @@ int main(int argc, char **argv) {
             ImGui::Text("FPS: %.1f", fps);
             ImGui::Text("Camera Position: (%.1f, %.1f, %.1f)", camera.position.x, camera.position.y, camera.position.z);
             ImGui::Text("Camera Rotation: (%.1f, %.1f)", camera.rotation.z, camera.rotation.y);
+            if (ImGui::BeginCombo("Render Mode", renderModes[renderMode].c_str())) {
+                for (int i = 0; i < renderModes.size(); i++) {
+                    bool isSelected = (renderMode == i);
+                    if (ImGui::Selectable(renderModes[i].c_str(), isSelected)) {
+                        renderMode = i;
+                        glUniform1i(renderModeID, renderMode);
+                    }
+                    if (isSelected) ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+            }
             ImGui::SliderFloat("light.x", &light.x, -10.0f, 10.0f);
             ImGui::SliderFloat("light.y", &light.y, -10.0f, 10.0f);
             ImGui::SliderFloat("light.z", &light.z, -10.0f, 10.0f);

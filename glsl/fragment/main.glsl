@@ -11,6 +11,7 @@ void swap(out float a, out float b) {
 out vec3 color;
 
 uniform vec2 resolution;
+uniform int renderMode;
 uniform mat4 cameraTranslationMatrix;
 uniform mat4 cameraRotationMatrix;
 
@@ -139,6 +140,23 @@ void main() {
 
     Hit hit = castRay(origin, direction);
 
+    if (renderMode != 0 && hit.dist == -1) {
+        color = vec3(0);
+        return;
+    }
+
+    switch (renderMode) {
+        case 1:
+            color = abs(hit.normal);
+            return;
+        case 2:
+            color = vec3(1.f - hit.dist / 100.f);
+            return;
+        case 3:
+            color = vec3(hit.material.color);
+            return;
+    }
+
     color = calculateLighting(hit, direction);
 
     for (int i = 0; i < 3 && hit.dist != -1 && hit.material.reflectivity > 0; i++) {
@@ -147,6 +165,4 @@ void main() {
         color = calculateLighting(reflectHit, reflectDir) * hit.material.reflectivity + color * (1 - hit.material.reflectivity);
         hit = reflectHit;
     }
-
-    // color = (20 - vec3(hit.dist)) / 20;
 }
