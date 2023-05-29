@@ -10,39 +10,35 @@ Cuboid Cuboid_load(samplerBuffer texture, int index) {
     self.vmin = vec3(data0.z, data0.w, data1.x);
     self.vmax = vec3(data1.y, data1.z, data1.w);
     self.material.color = data2.xyz;
-    // self.Irotation = mat3(vec3(data3.w, data4.x, data4.y), vec3(data4.z, data4.w, data5.x), data5.yzw);
-    self.Irotation = mat3(1);
+    self.material.specular = data2.w;
+    self.material.reflectivity = data3.x;
+    self.material.ior = data3.y;
+    self.material.transparent = data3.z;
     return self;
 }
 
 float Cuboid_intersect(const Cuboid self, vec3 origin, vec3 direction) {
-    vec3 invR = 1.0 / (self.Irotation * direction);
+    vec3 dirfrac = vec3(1.0f / direction.x, 1.0f / direction.y, 1.0f / direction.z);
 
-    vec3 center = (self.vmax + self.vmin) * 0.5;
+    float t1 = (self.vmin.x - origin.x) * dirfrac.x;
+    float t2 = (self.vmax.x - origin.x) * dirfrac.x;
+    float t3 = (self.vmin.y - origin.y) * dirfrac.y;
+    float t4 = (self.vmax.y - origin.y) * dirfrac.y;
+    float t5 = (self.vmin.z - origin.z) * dirfrac.z;
+    float t6 = (self.vmax.z - origin.z) * dirfrac.z;
 
-    vec3 vmax = (self.Irotation * (self.vmax - center)) + center;
-    vec3 vmin = (self.Irotation * (self.vmin - center)) + center;
+    float tmin = max(max(min(t1, t2), min(t3, t4)), min(t5, t6));
+    float tmax = min(min(max(t1, t2), max(t3, t4)), max(t5, t6));
 
-    vec3 ttop = invR * (vmax - origin);
-    vec3 tbot = invR * (vmin - origin);
+    if (tmax < 0) return -1;
+    if (tmin > tmax) return -1;
 
-    vec3 tmin = min(ttop, tbot);
-    vec3 tmax = max(ttop, tbot);
-
-    vec2 t = max(tmin.xx, tmin.yz);
-
-    float t0 = max(t.x, t.y);
-    t = min(tmax.xx, tmax.yz);
-    float t1 = min(t.x, t.y);
-
-    if (t0 > t1) return -1;
-
-    return t0;
+    return tmin;
 }
 
 vec3 Cuboid_normal(const Cuboid self, vec3 point) {
     vec3 size = self.vmax - self.vmin;
-    vec3 _point = self.Irotation * (point - (self.vmax + self.vmin) * 0.5);
+    vec3 _point = point - (self.vmax + self.vmin) * 0.5;
 
     if (abs(_point.x / size.x) > abs(_point.y / size.y) && abs(_point.x / size.x) > abs(_point.z / size.z)) return vec3(_point.x > 0 ? 1.f : -1.f, 0, 0);
     else if (abs(_point.y / size.y) > abs(_point.z / size.z)) return vec3(0, _point.y > 0 ? 1.f : -1.f, 0);

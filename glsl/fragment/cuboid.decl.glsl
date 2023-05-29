@@ -2,7 +2,6 @@ struct Cuboid {
     vec3 vmin;
     vec3 vmax;
     Material material;
-    mat3 Irotation;
 };
 
 Cuboid Cuboid_load(samplerBuffer texture, int index);

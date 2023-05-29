@@ -2,6 +2,12 @@
 
 #define M_PI float(3.141592653589793238462643383279)
 
+void swap(out float a, out float b) {
+    float tmp = a;
+    a = b;
+    b = tmp;
+}
+
 out vec3 color;
 
 uniform vec2 resolution;
@@ -23,7 +29,7 @@ uniform int lightsBufferSize;
 #include "cuboid.glsl"
 
 
-const float scale = 1;
+const float scale = 0.5f;
 
 vec3 getCameraRay(vec2 pos) {
     float u = (2 * (pos.x + 0.5) / resolution.x - 1) * resolution.x / resolution.y * scale;
@@ -32,85 +38,115 @@ vec3 getCameraRay(vec2 pos) {
     return normalize(vec3(1, u, v));
 }
 
-void main() {
-    vec3 origin = (cameraTranslationMatrix * vec4(0, 0, 0, 1)).xyz;
-    vec3 direction = (cameraRotationMatrix * vec4(getCameraRay(gl_FragCoord.xy), 0)).xyz;
-
-    int i = 0;
-    float dist = -1;
-    vec3 normal = vec3(0);
+struct Hit {
+    float dist;
+    vec3 normal;
     Material material;
-    while (i < shapesBufferSize) {
-        vec4 data = texelFetch(shapesBuffer, i);
+    vec3 point;
+};
+
+Hit castRay(vec3 origin, vec3 direction) {
+    int index = 0;
+    Hit hit;
+    hit.dist = -1;
+
+    // ===== OBJECT INTERSECTION =====
+    while (index < shapesBufferSize) {
+        vec4 data = texelFetch(shapesBuffer, index);
         switch (int(data.x)) {
             case 1:
-                Sphere sphere = Sphere_load(shapesBuffer, i);
+                Sphere sphere = Sphere_load(shapesBuffer, index);
                 float newDist = Sphere_intersect(sphere, origin, direction);
                 if (newDist != -1) {
-                    if (newDist < dist || dist == -1) {
-                        dist = newDist;
+                    if (newDist < hit.dist || hit.dist == -1) {
                         vec3 point = origin + direction * newDist;
-                        normal = Sphere_normal(sphere, point);
-                        material = sphere.material;
+                        vec3 normal = Sphere_normal(sphere, point);
+                        hit = Hit(newDist, normal, sphere.material, point);
                     }
                 }
                 break;
             case 2:
-                Cuboid cuboid = Cuboid_load(shapesBuffer, i);
+                Cuboid cuboid = Cuboid_load(shapesBuffer, index);
                 newDist = Cuboid_intersect(cuboid, origin, direction);
                 if (newDist != -1) {
-                    if (newDist < dist || dist == -1) {
-                        dist = newDist;
+                    if (newDist < hit.dist || hit.dist == -1) {
                         vec3 point = origin + direction * newDist;
-                        normal = Cuboid_normal(cuboid, point);
-                        material = cuboid.material;
+                        vec3 normal = Cuboid_normal(cuboid, point);
+                        hit = Hit(newDist, normal, cuboid.material, point);
                     }
                 }
                 break;
         }
-        i += int(data.y);
+        index += int(data.y);
     }
 
-    vec3 intersection = origin + direction * dist;
-    if (dist != -1) {
-        i = 0;
-        color = vec3(0);
-        while (i < lightsBufferSize) {
-            vec4 data = texelFetch(lightsBuffer, i);
+    return hit;
+}
+
+vec3 calculateLighting(Hit hit, vec3 direction) {
+    int index = 0;
+    vec3 color = vec3(0);
+    if (hit.dist != -1) {
+        // ===== LIGHTING =====
+        while (index < lightsBufferSize) {
+            vec4 data = texelFetch(lightsBuffer, index);
             switch (int(data.x)) {
                 case 1:
-                    PointLight pointLight = PointLight_load(lightsBuffer, i);
-                    vec3 diffuse = PointLight_diffuse(pointLight, intersection, normal);
-                    color += material.color * diffuse;
+                    PointLight pointLight = PointLight_load(lightsBuffer, index);
+                    vec3 diffuse = PointLight_diffuse(pointLight, hit.point, hit.normal);
+                    if (length(diffuse) > 0) {
+                        float shadowDist = castRay(hit.point + hit.normal * 0.001, pointLight.position - hit.point).dist;
+                        if (shadowDist == -1 || shadowDist > length(pointLight.position - hit.point)) {
+                            vec3 specular = PointLight_specular(pointLight, hit.point, hit.normal, direction, hit.material.specular);
+                            color += hit.material.color * diffuse * (1 - hit.material.reflectivity) + specular * hit.material.reflectivity;
+                        }
+                    }
                     break;
                 case 2:
-                    DirectionalLight directionalLight = DirectionalLight_load(lightsBuffer, i);
-                    diffuse = DirectionalLight_diffuse(directionalLight, intersection, normal);
-                    color += material.color * diffuse;
+                    DirectionalLight directionalLight = DirectionalLight_load(lightsBuffer, index);
+                    diffuse = DirectionalLight_diffuse(directionalLight, hit.point, hit.normal);
+                    color += hit.material.color * diffuse;
                     break;
                 case 3:
-                    GlobalLight globalLight = GlobalLight_load(lightsBuffer, i);
-                    diffuse = GlobalLight_diffuse(globalLight, intersection, normal);
-                    color += material.color * diffuse;
+                    GlobalLight globalLight = GlobalLight_load(lightsBuffer, index);
+                    diffuse = GlobalLight_diffuse(globalLight, hit.point, hit.normal);
+                    color += hit.material.color * diffuse;
                     break;
             }
-            i += int(data.y);
+            index += int(data.y);
         }
     } else {
-        i = 0;
-        color = vec3(0);
-        while (i < lightsBufferSize) {
-            vec4 data = texelFetch(lightsBuffer, i);
+        // ===== BACKGROUND COLOR =====
+        while (index < lightsBufferSize) {
+            vec4 data = texelFetch(lightsBuffer, index);
             switch (int(data.x)) {
                 case 3:
-                    GlobalLight globalLight = GlobalLight_load(lightsBuffer, i);
-                    vec3 diffuse = GlobalLight_diffuse(globalLight, intersection, normal);
+                    GlobalLight globalLight = GlobalLight_load(lightsBuffer, index);
+                    vec3 diffuse = GlobalLight_diffuse(globalLight, hit.point, hit.normal);
                     color += diffuse;
                     break;
             }
-            i += int(data.y);
+            index += int(data.y);
         }
     }
 
-    // color = (20 - vec3(dist)) / 20;
+    return color;
+}
+
+void main() {
+    vec3 origin = (cameraTranslationMatrix * vec4(0, 0, 0, 1)).xyz;
+    vec3 direction = (cameraRotationMatrix * vec4(getCameraRay(gl_FragCoord.xy), 0)).xyz;
+
+    Hit hit = castRay(origin, direction);
+
+    color = calculateLighting(hit, direction);
+
+    for (int i = 0; i < 3 && hit.dist != -1 && hit.material.reflectivity > 0; i++) {
+        vec3 reflectDir = reflect(direction, hit.normal);
+        Hit reflectHit = castRay(hit.point + hit.normal * 0.001, reflectDir);
+        color = calculateLighting(reflectHit, reflectDir) * hit.material.reflectivity + color * (1 - hit.material.reflectivity);
+        hit = reflectHit;
+    }
+
+    // color = (20 - vec3(hit.dist)) / 20;
 }

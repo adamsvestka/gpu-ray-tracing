@@ -13,6 +13,10 @@ glm::mat3 rotationMatrix(const glm::vec3 &rotation);
 
 struct Material {
     glm::vec3 color;
+    float specular;
+    float reflectivity;
+    float ior;
+    float transparent;
 
     std::string toString() const {
         std::stringstream ss;
@@ -52,7 +56,7 @@ public:
     void move(const glm::vec3 &position) { center += position; }
 
 private:
-    float __padding[10];
+    float __padding[6];
 };
 
 struct Cuboid {
@@ -64,9 +68,7 @@ private:
 public:
     Material material;
 
-    Cuboid(const glm::vec3 &center, const glm::vec3 &size, Material material) : vmin(center - size / 2.0f), vmax(center + size / 2.0f), material(material) {
-        Irotation = glm::mat3(1.0f);
-    }
+    Cuboid(const glm::vec3 &center, const glm::vec3 &size, Material material) : vmin(center - size / 2.0f), vmax(center + size / 2.0f), material(material) {}
 
     std::string toString() const {
         std::stringstream ss;
@@ -102,12 +104,8 @@ public:
         vmax = center + half_size * size;
     }
 
-    void setRotation(const glm::vec3 &rotation) { Irotation = glm::inverse(rotationMatrix(rotation)); }
-    void rotate(const glm::vec3 &rotation) { Irotation = glm::inverse(rotationMatrix(rotation)) * Irotation; }
-
 private:
-    float __padding[0];
-    glm::mat3 Irotation;
+    float __padding[3];
 };
 
 #pragma pack(pop)

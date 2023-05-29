@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
     chunks::setup_glfw();
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-    int screenWidth = 800, screenHeight = 600;
+    int screenWidth = 1200, screenHeight = 900;
     GLFWwindow *window = chunks::create_window(screenWidth, screenHeight, "Ray Tracing");
 
     std::cout << (glGetString(GL_RENDERER)) << std::endl;
@@ -63,12 +63,12 @@ int main(int argc, char **argv) {
 
 
     ShapeBuffer shapes(shapesBufferID, shapesBufferSizeID, 0);
-    shapes.addSphere(glm::vec3(8.0f, 1.0f, 1.0f), 3.0f, Material{ glm::vec3(0.0f, 0.0f, 1.0f) });
-    auto cuboid = shapes.addCuboid(glm::vec3(10.0f, 10.0f, 0.0f), glm::vec3(1.0f), Material{ glm::vec3(1.0f, 0.0f, 0.0f) });
+    shapes.addSphere(glm::vec3(8.0f, 1.0f, 1.0f), 3.0f, Material{ glm::vec3(0.0f, 0.0f, 1.0f), 100.0f, 0.5f, 1.0f, 0.0f });
+    auto cuboid = shapes.addCuboid(glm::vec3(5.0f, 5.0f, 0.0f), glm::vec3(2.5f), Material{ glm::vec3(1.0f, 0.0f, 0.0f), 500.0f, 0.0f, 1.0f, 0.0f });
 
     LightBuffer lights(lightsBufferID, lightsBufferSizeID, 1);
     lights.addGlobalLight(0.1f, glm::vec3(1.0f));
-    auto point_light = lights.addPointLight(glm::vec3(0.0f, 4.0f, -3.0f), 100, glm::vec3(1.0f));
+    auto point_light = lights.addPointLight(glm::vec3(0.0f, 4.0f, -3.0f), 500, glm::vec3(1.0f));
 
     shapes.print();
     shapes.printBuffer();
@@ -79,8 +79,8 @@ int main(int argc, char **argv) {
     lights.printGPUBuffer(ProgramID);
 
 
-    glm::vec3 light(0.0f, 4.0f, -3.0f);
-    int lightStrength = 100;
+    glm::vec3 light = point_light.getPosition();
+    int lightStrength = point_light.getIntensity();
     glm::vec2 delta(0.03f, 0.0f);
     float theta = 0.02f;
     glm::mat2 rotate(cos(theta), -sin(theta), sin(theta), cos(theta));
@@ -92,6 +92,7 @@ int main(int argc, char **argv) {
     double fps = 0.0f;
     double xpos, ypos, lastX, lastY;
 
+    glfwSwapInterval(1);
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 
     while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(window) != true) {
@@ -122,7 +123,7 @@ int main(int argc, char **argv) {
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
             float delta_x = (float)(lastX - xpos) / 5.0f;
             float delta_y = (float)(lastY - ypos) / 5.0f;
-            camera.rotation.z -= delta_x;
+            camera.rotation.z = mod(camera.rotation.z - delta_x, 360.0f);
             camera.rotation.y = clamp(camera.rotation.y + delta_y, -90.0f, 90.0f);
         }
         lastX = xpos;

@@ -45,9 +45,7 @@ public:
 
     void setPosition(const glm::vec3 &position) { get().setPosition(position); buffer.update(index); }
     void setSize(const glm::vec3 &size) { get().setSize(size); buffer.update(index); }
-    void setRotation(const glm::vec3 &rotation) { get().setRotation(rotation); buffer.update(index); }
 
     void move(const glm::vec3 &position) { get().move(position); buffer.update(index); }
     void scale(const glm::vec3 &size) { get().scale(size); buffer.update(index); }
-    void rotate(const glm::vec3 &rotation) { get().rotate(rotation); buffer.update(index); }
 };
