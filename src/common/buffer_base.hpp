@@ -20,6 +20,7 @@ protected:
 
 public:
     BufferBase(GLuint bufferTextureID, GLuint bufferSizeID, GLuint textureID);
+    ~BufferBase();
 
     void update() const;
     void update(size_t index) const;
@@ -75,6 +76,12 @@ BufferBase<T>::BufferBase(GLuint bufferTextureID, GLuint bufferSizeID, GLuint te
 
     glUniform1i(bufferTextureID, textureID);
     glUniform1i(bufferSizeID, buffer.size() * sizeof(T) / sizeof(glm::vec4));
+}
+
+template <typename T>
+BufferBase<T>::~BufferBase() {
+    glDeleteBuffers(1, &VBO);
+    glDeleteTextures(1, &TBO);
 }
 
 template <typename T>

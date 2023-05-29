@@ -9,6 +9,7 @@
 
 
 GLuint fb, tex;
+GLuint ProgramID;
 
 void setup() {
     chunks::setup_glfw();
@@ -51,20 +52,19 @@ GLuint run_and_get_result(const std::string &binding) {
         }
     )";
 
-    GLuint program;
     try {
-        program = shader::link_program(
+        ProgramID = shader::link_program(
             shader::compile_shader(GL_VERTEX_SHADER, VertexShaderCode, true),
             shader::compile_shader(GL_FRAGMENT_SHADER, shader::load_shader_code("glsl/fragment/_testing.glsl", FragmentShaderInject), true)
             , true);
     } catch (const std::runtime_error &e) {
-        FAIL(std::string(e.what()));
+        FAIL((std::string("SHADER COMPILATION ERROR: ") + e.what()));
     }
-    glUseProgram(program);
+    glUseProgram(ProgramID);
 
     chunks::render_scene();
 
-    return program;
+    return ProgramID;
 }
 
 float execute_shader_code_float(const std::string &code) {

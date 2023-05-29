@@ -43,6 +43,14 @@ There is some information in the upper left corner:
 - `Light position` - position of a sample light source in the scene, can be moved around
 - `Light intensity` - intensity of the sample light source
 
+## Testing
+
+The project uses doctest for unit testing. To run the tests, use the following command:
+
+```sh
+make test
+```
+
 ## Implementation Details
 
 The GPU ray tracing implementation is based on the following concepts and techniques:
