@@ -7,8 +7,6 @@
 
 const unsigned __shapes_stride = 4;
 
-glm::mat3 rotationMatrix(const glm::vec3 &rotation);
-
 #pragma pack(push, 1)
 
 struct Material {

@@ -2,12 +2,6 @@
 
 #define M_PI float(3.141592653589793238462643383279)
 
-void swap(out float a, out float b) {
-    float tmp = a;
-    a = b;
-    b = tmp;
-}
-
 out vec3 color;
 
 uniform vec2 resolution;

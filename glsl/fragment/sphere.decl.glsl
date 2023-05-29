@@ -3,7 +3,6 @@ struct Sphere {
     float radius;
     float radius_squared;
     Material material;
-    // mat4 transform;
 };
 
 Sphere Sphere_load(samplerBuffer texture, int index);
