@@ -101,7 +101,7 @@ public:
     }
 
 private:
-    float __padding[1];
+    float __padding[3];
 };
 
 #pragma pack(pop)
