@@ -11,7 +11,7 @@ Sphere Sphere_load(samplerBuffer texture, int index) {
     self.radius = data1.y;
     self.radius_squared = data1.z;
     self.material.color = vec3(data1.w, data2.x, data2.y);
-    self.material.specular = data2.z;
+    self.material.shininess = data2.z;
     self.material.reflectivity = data2.w;
     return self;
 }

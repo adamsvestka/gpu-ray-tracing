@@ -1,13 +1,13 @@
 struct PointLight {
     vec3 position;
-    float intensity;
     vec3 color;
+    float intensity;
 };
 
 struct DirectionalLight {
     vec3 direction;
-    float intensity;
     vec3 color;
+    float intensity;
 };
 
 struct GlobalLight {
@@ -22,8 +22,8 @@ PointLight PointLight_load(samplerBuffer texture, int index) {
 
     PointLight light;
     light.position = vec3(data0.z, data0.w, data1.x);
-    light.intensity = data1.y;
-    light.color = vec3(data1.z, data1.w, data2.x);
+    light.color = vec3(data1.y, data1.z, data1.w);
+    light.intensity = data2.x;
     return light;
 }
 
@@ -46,8 +46,8 @@ DirectionalLight DirectionalLight_load(samplerBuffer texture, int index) {
 
     DirectionalLight light;
     light.direction = vec3(data0.z, data0.w, data1.x);
-    light.intensity = data1.y;
-    light.color = vec3(data1.z, data1.w, data2.x);
+    light.color = vec3(data1.y, data1.z, data1.w);
+    light.intensity = data2.x;
     return light;
 }
 
@@ -66,8 +66,8 @@ GlobalLight GlobalLight_load(samplerBuffer texture, int index) {
     vec4 data2 = texelFetch(texture, index + 2);
 
     GlobalLight light;
-    light.intensity = data0.z;
-    light.color = vec3(data0.w, data1.x, data1.y);
+    light.color = vec3(data0.z, data0.w, data1.x);
+    light.intensity = data1.y;
     return light;
 }
 

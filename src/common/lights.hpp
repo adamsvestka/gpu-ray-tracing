@@ -15,17 +15,17 @@ private:
 
 public:
     glm::vec3 position;
-    float intensity;
     glm::vec3 color;
+    float intensity;
 
-    PointLight(const glm::vec3 &position, float intensity, const glm::vec3 &color) : position(position), intensity(intensity), color(color) {}
+    PointLight(const glm::vec3 &position, const glm::vec3 &color, float intensity) : position(position), color(color), intensity(intensity) {}
 
     std::string toString() const {
         std::stringstream ss;
         ss << "PointLight("
             << "position: vec3(" << position.x << ", " << position.y << ", " << position.z << "), "
-            << "intensity: " << intensity << ", "
-            << "color: vec3(" << color.x << ", " << color.y << ", " << color.z << ")"
+            << "color: vec3(" << color.x << ", " << color.y << ", " << color.z << "), "
+            << "intensity: " << intensity
             << ")";
         return ss.str();
     }
@@ -41,17 +41,17 @@ private:
 
 public:
     glm::vec3 direction;
-    float intensity;
     glm::vec3 color;
+    float intensity;
 
-    DirectionalLight(const glm::vec3 &direction, float intensity, const glm::vec3 &color) : direction(direction), intensity(intensity), color(color) {}
+    DirectionalLight(const glm::vec3 &direction, const glm::vec3 &color, float intensity) : direction(direction), color(color), intensity(intensity) {}
 
     std::string toString() const {
         std::stringstream ss;
         ss << "DirectionalLight("
             << "direction: vec3(" << direction.x << ", " << direction.y << ", " << direction.z << "), "
-            << "intensity: " << intensity << ", "
-            << "color: vec3(" << color.x << ", " << color.y << ", " << color.z << ")"
+            << "color: vec3(" << color.x << ", " << color.y << ", " << color.z << "), "
+            << "intensity: " << intensity
             << ")";
         return ss.str();
     }
@@ -66,16 +66,16 @@ private:
     float stride = __lights_stride;
 
 public:
-    float intensity;
     glm::vec3 color;
+    float intensity;
 
-    GlobalLight(float intensity, const glm::vec3 &color) : intensity(intensity), color(color) {}
+    GlobalLight(const glm::vec3 &color, float intensity) : color(color), intensity(intensity) {}
 
     std::string toString() const {
         std::stringstream ss;
         ss << "GlobalLight("
-            << "intensity: " << intensity << ", "
-            << "color: vec3(" << color.x << ", " << color.y << ", " << color.z << ")"
+            << "color: vec3(" << color.x << ", " << color.y << ", " << color.z << "), "
+            << "intensity: " << intensity
             << ")";
         return ss.str();
     }

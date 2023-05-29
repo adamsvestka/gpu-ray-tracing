@@ -13,7 +13,7 @@ glm::mat3 rotationMatrix(const glm::vec3 &rotation);
 
 struct Material {
     glm::vec3 color;
-    float specular;
+    float shininess;
     float reflectivity;
 
     std::string toString() const {

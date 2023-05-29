@@ -10,7 +10,7 @@ Cuboid Cuboid_load(samplerBuffer texture, int index) {
     self.vmin = vec3(data0.z, data0.w, data1.x);
     self.vmax = vec3(data1.y, data1.z, data1.w);
     self.material.color = data2.xyz;
-    self.material.specular = data2.w;
+    self.material.shininess = data2.w;
     self.material.reflectivity = data3.x;
     return self;
 }

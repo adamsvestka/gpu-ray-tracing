@@ -62,14 +62,19 @@ int main(int argc, char **argv) {
 
     glUniform2f(resolutionID, screenWidth, screenHeight);
 
+    Camera camera;
 
     ShapeBuffer shapes(shapesBufferID, shapesBufferSizeID, 0);
-    shapes.addSphere(glm::vec3(8.0f, 1.0f, 1.0f), 3.0f, Material{ glm::vec3(0.0f, 0.0f, 1.0f), 100.0f, 0.5f });
-    auto cuboid = shapes.addCuboid(glm::vec3(5.0f, 5.0f, 0.0f), glm::vec3(2.5f), Material{ glm::vec3(1.0f, 0.0f, 0.0f), 500.0f, 0.0f });
+    shapes.addSphere(glm::vec3(8.0f, 1.0f, 1.0f), 3.0f, Material{ glm::vec3(0.1f, 0.1f, 1.0f), 100.0f, 0.0f });
+    auto cuboid = shapes.addCuboid(glm::vec3(5.0f, 5.0f, 0.0f), glm::vec3(2.5f), Material{ glm::vec3(1.0f, 0.1f, 0.1f), 500.0f, 0.0f });
+    shapes.addCuboid(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(50.0f, 50.0f, 1.0f), Material{ glm::vec3(0.1f, 1.0f, 0.1f), 1000.0f, 0.5f });
 
     LightBuffer lights(lightsBufferID, lightsBufferSizeID, 1);
-    lights.addGlobalLight(0.1f, glm::vec3(1.0f));
-    auto point_light = lights.addPointLight(glm::vec3(0.0f, 4.0f, -3.0f), 500, glm::vec3(1.0f));
+    lights.addGlobalLight(glm::vec3(1.0f), 0.1f);
+    auto point_light = lights.addPointLight(glm::vec3(0.0f, 4.0f, -3.0f), glm::vec3(1.0f), 500);
+
+    // SceneLoader::load_yaml("scene.yaml", camera, shapes, lights);
+
 
     shapes.print();
     shapes.printBuffer();
@@ -85,7 +90,6 @@ int main(int argc, char **argv) {
     glm::vec2 delta(0.03f, 0.0f);
     float theta = 0.02f;
     glm::mat2 rotate(cos(theta), -sin(theta), sin(theta), cos(theta));
-    Camera camera;
 
 
     double lastTime = glfwGetTime();
@@ -123,7 +127,7 @@ int main(int argc, char **argv) {
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) camera.position += glm::vec3(sin(angle), -cos(angle), 0.0f) * 0.1f;
 
         glfwGetCursorPos(window, &xpos, &ypos);
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+        if (!ImGui::GetIO().WantCaptureMouse && glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
             float delta_x = (float)(lastX - xpos) / 5.0f;
             float delta_y = (float)(lastY - ypos) / 5.0f;
             camera.rotation.z = mod(camera.rotation.z - delta_x, 360.0f);
@@ -161,19 +165,19 @@ int main(int argc, char **argv) {
             ImGui::SliderFloat("light.y", &light.y, -10.0f, 10.0f);
             ImGui::SliderFloat("light.z", &light.z, -10.0f, 10.0f);
             ImGui::SliderInt("lightStrength", &lightStrength, 0, 1000);
-            if (ImGui::Button("Open File")) {
-                nfdchar_t *outPath = NULL;
-                nfdresult_t result = NFD_OpenDialog("png,jpg", NULL, &outPath);
-                if (result == NFD_OKAY) {
-                    std::cout << "Success!" << std::endl;
-                    std::cout << outPath << std::endl;
-                    free(outPath);
-                } else if (result == NFD_CANCEL) {
-                    std::cout << "User pressed cancel." << std::endl;
-                } else {
-                    std::cout << "Error: " << NFD_GetError() << std::endl;
-                }
-            }
+            // if (ImGui::Button("Open File")) {
+            //     nfdchar_t *outPath = NULL;
+            //     nfdresult_t result = NFD_OpenDialog("png,jpg", NULL, &outPath);
+            //     if (result == NFD_OKAY) {
+            //         std::cout << "Success!" << std::endl;
+            //         std::cout << outPath << std::endl;
+            //         free(outPath);
+            //     } else if (result == NFD_CANCEL) {
+            //         std::cout << "User pressed cancel." << std::endl;
+            //     } else {
+            //         std::cout << "Error: " << NFD_GetError() << std::endl;
+            //     }
+            // }
             ImGui::End();
         }
 

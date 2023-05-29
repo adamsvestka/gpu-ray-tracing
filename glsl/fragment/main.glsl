@@ -98,7 +98,7 @@ vec3 calculateLighting(Hit hit, vec3 direction) {
                     if (length(diffuse) > 0) {
                         float shadowDist = castRay(hit.point + hit.normal * 0.001, pointLight.position - hit.point).dist;
                         if (shadowDist == -1 || shadowDist > length(pointLight.position - hit.point)) {
-                            vec3 specular = PointLight_specular(pointLight, hit.point, hit.normal, direction, hit.material.specular);
+                            vec3 specular = PointLight_specular(pointLight, hit.point, hit.normal, direction, hit.material.shininess);
                             color += hit.material.color * diffuse * (1 - hit.material.reflectivity) + specular * hit.material.reflectivity;
                         }
                     }

@@ -1,5 +1,5 @@
 struct Material {
     vec3 color;
-    float specular;
+    float shininess;
     float reflectivity;
 };

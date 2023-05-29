@@ -1,0 +1,124 @@
+camera:
+  position: [-1, 0, 2.4]
+  rotation: [0, -5, 0]
+shapes:
+  - type: plane
+    position: [8, -11, 13]
+    size_x: 5
+    size_y: 5
+    rotation: [135, 0, 0]
+    material:
+      color: ffffff
+  - type: plane
+    position: [10, 0, 0]
+    size_x: 20
+    size_y: 20
+    rotation: [0, 0, 0]
+    material:
+      color: ffffff
+  - type: plane
+    position: [23, 0, 0]
+    size_x: 20
+    size_y: 20
+    rotation: [0, 90, 0]
+    material:
+      color: ffffff
+  - type: plane
+    position: [10, -11, 0]
+    size_x: 20
+    size_y: 20
+    rotation: [90, 0, 0]
+    material:
+      color: ffffff
+  - type: plane
+    position: [10, 11, 0]
+    size_x: 20
+    size_y: 20
+    rotation: [90, 0, 0]
+    material:
+      color: ffffff
+  - type: sphere
+    position: [10, -3, 1]
+    radius: 1
+    material:
+      color: ffffff
+  - type: sphere
+    position: [10, 0, 1]
+    radius: 1
+    material:
+      color: ffffff
+      shininess: 1000000
+      reflectivity: 0.1
+  - type: sphere
+    position: [10, 3, 1]
+    radius: 1
+    material:
+      color: ffffff
+      shininess: 1000000
+      reflectivity: 1
+  - type: sphere
+    position: [8.5, -3, 0.5]
+    radius: 0.5
+    material:
+      color: ff1020
+  - type: sphere
+    position: [8.5, 0, 0.5]
+    radius: 0.5
+    material:
+      color: 1020ff
+  - type: sphere
+    position: [8.5, 3, 0.5]
+    radius: 0.5
+    material:
+      color: 30ff30
+  - type: sphere
+    position: [8.5, -1.5, 0.6]
+    radius: 0.5
+    material:
+      color: efffff
+  - type: sphere
+    position: [8.5, 1.5, 0.6]
+    radius: 0.5
+    material:
+      color: ffffff
+      shininess: 100
+      reflectivity: 1
+  - type: cuboid
+    position: [8.5, -1.5, 0.08]
+    size: [1.5, 1.5, 0.1]
+    material:
+      color: ffffff
+  - type: cuboid
+    position: [8.5, 1.5, 0.08]
+    size: [1.5, 1.5, 0.1]
+    material:
+      color: ffffff
+  - type: sphere
+    position: [9, -4, 4.5]
+    radius: 0.45
+    material:
+      color: ffffff
+      shininess: 100
+      reflectivity: 1
+  - type: sphere
+    position: [9, 0, 4.5]
+    radius: 0.45
+    material:
+      color: ffffff
+      shininess: 100
+      reflectivity: 1
+  - type: sphere
+    position: [9, 4, 4.5]
+    radius: 0.45
+    material:
+      color: ffffff
+      shininess: 100
+      reflectivity: 1
+lights:
+  - type: global
+    color: ffffff
+    intensity: 0.3
+  - type: point
+    position: [8, -10, 12]
+    color: ffffff
+    intensity: 500

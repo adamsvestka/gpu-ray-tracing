@@ -6,7 +6,7 @@ include ../Guard.mk
 
 LIB_SRC = ../lib-src
 
-build: libimgui.a libnfd.a
+build: libimgui.a libnfd.a #libyaml-cpp.a
 
 # ===== Dear ImGui =====
 IMGUI_DIR = $(LIB_SRC)/imgui
@@ -41,8 +41,18 @@ libnfd.a: $(NFD_TARGET)
 	$(MAKE) -C $(NFD_TARGET)
 	find $(NFD_DIR)/lib -type f -name $@ -exec cp {} . \;
 
+# ===== YAML CPP =====
+YAML_CPP_DIR = $(LIB_SRC)/yaml-cpp
+
+libyaml-cpp.a:
+	cmake -S $(YAML_CPP_DIR) -B $(YAML_CPP_DIR)/build -DYAML_CPP_BUILD_TESTS=OFF -DYAML_CPP_BUILD_TOOLS=OFF
+	$(MAKE) -C $(YAML_CPP_DIR)/build
+	cp $(YAML_CPP_DIR)/build/$@ .
+
+YAML_CPP_OBJS = $(YAML_CPP_DIR)/build
+
 clean:
 	@printf "\033[1;31mCleaning library artifacts...\033[0m\n"
-	rm -rf $(IMGUI_OBJS) $(NFD_OBJS) libimgui.a libnfd.a
+	rm -rf $(IMGUI_OBJS) $(NFD_OBJS) $(YAML_CPP_OBJS) libimgui.a libnfd.a libyaml-cpp.a
 
 .PHONY: build clean

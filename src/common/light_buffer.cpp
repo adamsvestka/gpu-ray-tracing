@@ -4,20 +4,20 @@
 
 LightBuffer::LightBuffer(GLuint bufferTextureID, GLuint bufferSizeID, GLuint textureID) : BufferBase(bufferTextureID, bufferSizeID, textureID) {}
 
-PointLightRef LightBuffer::addPointLight(const glm::vec3 &position, float intensity, const glm::vec3 &color) {
-    buffer.push_back({ pointLight: PointLight(position, intensity, color) });
+PointLightRef LightBuffer::addPointLight(const glm::vec3 &position, const glm::vec3 &color, float intensity) {
+    buffer.push_back({ pointLight: PointLight(position, color, intensity) });
     update();
     return PointLightRef(*this, buffer.size() - 1);
 }
 
-DirectionalLightRef LightBuffer::addDirectionalLight(const glm::vec3 &direction, float intensity, const glm::vec3 &color) {
-    buffer.push_back({ directionalLight: DirectionalLight(direction, intensity, color) });
+DirectionalLightRef LightBuffer::addDirectionalLight(const glm::vec3 &direction, const glm::vec3 &color, float intensity) {
+    buffer.push_back({ directionalLight: DirectionalLight(direction, color, intensity) });
     update();
     return DirectionalLightRef(*this, buffer.size() - 1);
 }
 
-GlobalLightRef LightBuffer::addGlobalLight(float intensity, const glm::vec3 &color) {
-    buffer.push_back({ globalLight: GlobalLight(intensity, color) });
+GlobalLightRef LightBuffer::addGlobalLight(const glm::vec3 &color, float intensity) {
+    buffer.push_back({ globalLight: GlobalLight(color, intensity) });
     update();
     return GlobalLightRef(*this, buffer.size() - 1);
 }

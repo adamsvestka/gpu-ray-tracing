@@ -3,7 +3,7 @@ SUBDIR := src
 include ../Guard.mk
 
 CXXFLAGS +=
-LDFLAGS  += -lGLFW -lGLEW -framework OpenGL -L$(ROOT_DIR)/lib -limgui -lnfd -framework AppKit
+LDFLAGS  += -lGLFW -lGLEW -framework OpenGL -L$(ROOT_DIR)/lib -limgui -lnfd -framework AppKit #-lyaml-cpp
 
 OBJ_DIR = $(TEMP_DIR)/obj/$(SUBDIR)
 DEP_DIR = $(TEMP_DIR)/dep/$(SUBDIR)
