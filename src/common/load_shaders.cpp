@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <filesystem>
+#include <optional>
 
 #define STB_INCLUDE_IMPLEMENTATION
 #define STB_INCLUDE_LINE_GLSL

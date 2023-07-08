@@ -37,7 +37,6 @@ copy-headers: download
 copy-assets:
 	@printf "\033[1;33mCopying assets...\033[0m\n"
 	@$(MAKE) -C glsl
-	@$(MAKE) -C res
 
 clean:
 	@printf "\033[1;31mCleaning temporary files...\033[0m\n"
